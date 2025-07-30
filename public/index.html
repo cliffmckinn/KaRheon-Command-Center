@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Ka'Rheon Command Center</title>
+  <style>
+    body { background:#000; color:#0f0; font-family: monospace; padding:20px; }
+    #log { white-space: pre-wrap; background:#111; padding:10px; height:400px; overflow-y: auto; }
+    #input { width: 100%; padding:10px; background:#111; color:#0f0; border:none; }
+    #dropzone {
+        border: 2px dashed #0f0; padding: 20px; margin-top: 20px; text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ka'Rheon Command Center</h1>
+  <div id="log">Interface active. Awaiting commands...</div>
+  <input id="input" placeholder="Type a command and press Enter..." />
+  <div id="dropzone">Drag & Drop Images (Sigils) Here or Click to Upload</div>
+  <script>
+    const log = document.getElementById('log');
+    const input = document.getElementById('input');
+    const dropzone = document.getElementById('dropzone');
+
+    function write(msg) { log.textContent += "\n" + msg; log.scrollTop = log.scrollHeight; }
+
+    input.addEventListener('keypress', e => {
+      if (e.key === 'Enter') {
+        write("> " + input.value);
+        input.value = "";
+      }
+    });
+
+    dropzone.addEventListener('click', () => {
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.onchange = () => uploadFiles(fileInput.files);
+      fileInput.click();
+    });
+
+    dropzone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropzone.style.background = '#030';
+    });
+
+    dropzone.addEventListener('dragleave', e => {
+      e.preventDefault();
+      dropzone.style.background = '';
+    });
+
+    dropzone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropzone.style.background = '';
+      uploadFiles(e.dataTransfer.files);
+    });
+
+    function uploadFiles(files) {
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+        fetch('/api/upload', { method: 'POST', body: formData })
+          .then(() => write(`Uploaded: ${file.name}`))
+          .catch(() => write(`Error uploading: ${file.name}`));
+      }
+    }
+  </script>
+</body>
+</html>
