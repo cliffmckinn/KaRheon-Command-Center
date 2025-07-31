@@ -27,137 +27,76 @@
   <div id="log">Interface active. Awaiting commands...</div>
   <input id="input" placeholder="Type a command and press Enter..." />
   <div id="dropzone">Drag & Drop Images (Sigils) Here or Click to Upload</div>
- <script>
-  const log = document.getElementById('log');
-  const input = document.getElementById('input');
-  const dropzone = document.getElementById('dropzone');
 
-  // Prevent the browser from opening files on drag/drop outside the dropzone
-  window.addEventListener("dragover", e => e.preventDefault());
-  window.addEventListener("drop", e => e.preventDefault());
+  <script>
+    const log = document.getElementById('log');
+    const input = document.getElementById('input');
+    const dropzone = document.getElementById('dropzone');
 
-  function write(msg) {
-    log.textContent += "\n" + msg;
-    log.scrollTop = log.scrollHeight;
-  }
+    // Prevent browser from opening files if dropped outside the dropzone
+    window.addEventListener("dragover", e => e.preventDefault());
+    window.addEventListener("drop", e => e.preventDefault());
 
-  async function sendMessage(text) {
-    write("> " + text);
-    const res = await fetch('/api/index.js', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text })
+    function write(msg) {
+      log.textContent += "\n" + msg;
+      log.scrollTop = log.scrollHeight;
+    }
+
+    async function sendMessage(text) {
+      write("> " + text);
+      const res = await fetch('/api/index.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text })
+      });
+      const data = await res.json();
+      write(data.reply);
+    }
+
+    input.addEventListener('keypress', e => {
+      if (e.key === 'Enter') {
+        const text = input.value.trim();
+        if (text) sendMessage(text);
+        input.value = "";
+      }
     });
-    const data = await res.json();
-    write(data.reply);
-  }
 
-  input.addEventListener('keypress', e => {
-    if (e.key === 'Enter') {
-      const text = input.value.trim();
-      if (text) sendMessage(text);
-      input.value = "";
-    }
-  });
-
-  dropzone.addEventListener('click', () => {
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = '*/*';
-    fileInput.onchange = () => uploadFiles(fileInput.files);
-    fileInput.click();
-  });
-
-  dropzone.addEventListener('dragover', e => {
-    e.preventDefault();
-    e.stopPropagation();
-    dropzone.style.background = '#030';
-  });
-
-  dropzone.addEventListener('dragleave', e => {
-    e.preventDefault();
-    e.stopPropagation();
-    dropzone.style.background = '';
-  });
-
-  dropzone.addEventListener('drop', e => {
-    e.preventDefault();
-    e.stopPropagation();
-    dropzone.style.background = '';
-    uploadFiles(e.dataTransfer.files);
-  });
-
-  function uploadFiles(files) {
-    for (const file of files) {
-      const formData = new FormData();
-      formData.append('file', file);
-      fetch('/api/upload', { method: 'POST', body: formData })
-        .then(() => write(`Uploaded: ${file.name}`))
-        .catch(() => write(`Error uploading: ${file.name}`));
-    }
-  }
-</script>
-  const log = document.getElementById('log');
-  const input = document.getElementById('input');
-  const dropzone = document.getElementById('dropzone');
-
-  function write(msg) {
-    log.textContent += "\n" + msg;
-    log.scrollTop = log.scrollHeight;
-  }
-
-  async function sendMessage(text) {
-    write("> " + text);
-    const res = await fetch('/api/index.js', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text })
+    dropzone.addEventListener('click', () => {
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = '*/*';
+      fileInput.onchange = () => uploadFiles(fileInput.files);
+      fileInput.click();
     });
-    const data = await res.json();
-    write(data.reply);
-  }
 
-  input.addEventListener('keypress', e => {
-    if (e.key === 'Enter') {
-      const text = input.value.trim();
-      if (text) sendMessage(text);
-      input.value = "";
+    dropzone.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.style.background = '#030';
+    });
+
+    dropzone.addEventListener('dragleave', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.style.background = '';
+    });
+
+    dropzone.addEventListener('drop', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.style.background = '';
+      uploadFiles(e.dataTransfer.files);
+    });
+
+    function uploadFiles(files) {
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+        fetch('/api/upload', { method: 'POST', body: formData })
+          .then(() => write(`Uploaded: ${file.name}`))
+          .catch(() => write(`Error uploading: ${file.name}`));
+      }
     }
-  });
-
-  dropzone.addEventListener('click', () => {
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = '*/*';
-    fileInput.onchange = () => uploadFiles(fileInput.files);
-    fileInput.click();
-  });
-
-  dropzone.addEventListener('dragover', e => {
-    e.preventDefault();
-    dropzone.style.background = '#030';
-  });
-
-  dropzone.addEventListener('dragleave', e => {
-    e.preventDefault();
-    dropzone.style.background = '';
-  });
-
-  dropzone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropzone.style.background = '';
-    uploadFiles(e.dataTransfer.files);
-  });
-
-  function uploadFiles(files) {
-    for (const file of files) {
-      const formData = new FormData();
-      formData.append('file', file);
-      fetch('/api/upload', { method: 'POST', body: formData })
-        .then(() => write(`Uploaded: ${file.name}`))
-        .catch(() => write(`Error uploading: ${file.name}`));
-    }
-  }
-</script>
+  </script>
 </body>
 </html>
