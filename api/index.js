@@ -3,6 +3,7 @@ const { message } = await new Promise((resolve) => { let body = '';
 req.on('data', chunk => body += chunk); req.on('end', () => resolve(JSON.parse(body)));
 });
 const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY;
+console.log("TOGETHER_API_KEY loaded?", !!TOGETHER_API_KEY);
 const response = await fetch("https://api.together.xyz/inference", { method: "POST",
 headers: {
 "Authorization": `Bearer ${TOGETHER_API_KEY}`,
