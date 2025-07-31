@@ -42,16 +42,23 @@
       log.scrollTop = log.scrollHeight;
     }
 
-    async function sendMessage(text) {
-      write("> " + text);
-      const res = await fetch('/api/index.js', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text })
-      });
-      const data = await res.json();
-      write(data.reply);
-    }
+   async function sendMessage(text) {
+  write("> " + text);
+  const res = await fetch("/api/index.js", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: text })
+  });
+  const data = await res.json();
+  write(data.reply);
+
+  // Force refresh/scroll for mobile rendering
+  setTimeout(() => {
+    document.body.style.height = window.innerHeight + "px";
+    window.scrollTo(0, document.body.scrollHeight);
+  }, 50);
+}
+
 
     input.addEventListener('keypress', e => {
       if (e.key === 'Enter') {
